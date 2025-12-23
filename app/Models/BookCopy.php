@@ -21,7 +21,26 @@ class BookCopy extends Model
      */
     public function title()
     {
-        return $this->belongsTo(BookTitle::class);
+        return $this->belongsTo(BookTitle::class, 'book_title_id');
+    }
+    
+
+    /**
+     * 這本館藏的所有借閱紀錄
+     */
+    public function loans()
+    {
+        return $this->hasMany(Loan::class);
+    }
+
+    /**
+     * 目前有效的借閱紀錄（尚未歸還）
+     */
+    public function currentLoan()
+    {
+        return $this->hasOne(Loan::class)->whereNull('return_date');
     }
 }
+
+
 

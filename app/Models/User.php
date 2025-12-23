@@ -62,4 +62,11 @@ class User extends Authenticatable
             ->map(fn ($word) => Str::substr($word, 0, 1))
             ->implode('');
     }
+     /**
+     * 使用者的借閱紀錄
+     */
+    public function loans()
+    {
+        return $this->hasMany(Loan::class);
+    }
 }

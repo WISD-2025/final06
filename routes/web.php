@@ -41,3 +41,10 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/staff/loans/checkout', [StaffLoanController::class, 'store'])
         ->name('staff.loans.store');
 });
+
+//===== 歸還功能 =====
+Route::get('/staff/loans/return', [StaffLoanController::class, 'returnForm'])
+    ->name('staff.loans.return.form');
+
+Route::post('/staff/loans/return', [StaffLoanController::class, 'returnStore'])
+    ->name('staff.loans.return.store');

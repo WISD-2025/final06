@@ -133,4 +133,28 @@ public function returnStore(Request $request)
         ->with('success', "《{$bookTitle}》已完成歸還，歸還日為 {$returnDate}。");
 }
 
+public function index()
+{
+    abort_unless(auth()->user()?->role === 'librarian', 403);
+
+    $loans = Loan::with(['user', 'copy.title'])
+        ->whereNull('return_date')
+        ->orderByDesc('loan_date')
+        ->get();
+
+    return view('staff.loans.index', compact('loans'));
+}
+
+public function myLoans()
+{
+    $user = auth()->user();
+
+    $loans = Loan::with(['copy.title'])
+        ->where('user_id', $user->id)
+        ->orderByDesc('loan_date')
+        ->get();
+
+    return view('staff.loans.my', compact('loans'));
+
+}
 }

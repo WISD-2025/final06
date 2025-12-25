@@ -48,3 +48,9 @@ Route::get('/staff/loans/return', [StaffLoanController::class, 'returnForm'])
 
 Route::post('/staff/loans/return', [StaffLoanController::class, 'returnStore'])
     ->name('staff.loans.return.store');
+// ===== 館員查看借閱紀錄功能 =====
+Route::get('/staff/loans', [StaffLoanController::class, 'index'])
+    ->name('staff.loans.index');
+
+Route::get('/my/loans', [StaffLoanController::class, 'myLoans'])
+    ->name('my.loans.index');

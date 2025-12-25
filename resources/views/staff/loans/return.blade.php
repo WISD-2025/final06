@@ -32,9 +32,5 @@
                 確認歸還
             </button>
         </form>
-
-        <div class="text-sm opacity-80">
-            提示：只能用 role=librarian 的帳號操作（否則 403）。
-        </div>
     </div>
 </x-layouts.app>

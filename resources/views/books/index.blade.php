@@ -39,7 +39,11 @@
                 <tbody>
                     @foreach($books as $book)
                         <tr class="border-t">
-                            <td class="p-3 font-medium">{{ $book->title }}</td>
+                            <td class="p-3 font-medium">
+                                <a class="hover:underline" href="{{ route('books.show', $book->id) }}">
+                                    {{ $book->title }}
+                                </a>
+                            </td>
                             <td class="p-3">{{ $book->author }}</td>
                             <td class="p-3">{{ $book->isbn }}</td>
                             <td class="p-3">

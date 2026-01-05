@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+
 use App\Models\BookTitle;
 use Illuminate\Http\Request;
 
@@ -45,6 +46,30 @@ class BookController extends Controller
         // 改成回傳 Blade 畫面（取代 JSON）
         return view('books.index', compact('books', 'q'));
 
+        
+    }
+
+    /**
+     * 書籍詳情（用 id 明確查詢）
+     * URL: /books/{id}
+     */
+    public function show(int $id)
+    {
+        // 明確用 id 找書目，找不到就 404（這樣行為才正確）
+        $book = BookTitle::query()
+            ->with(['bookCopies:id,book_title_id,barcode,status'])
+            ->findOrFail($id);
+
+        // 計算可借副本數（status=available）
+        $availableCount = $book->bookCopies->where('status', 'available')->count();
+
+        // 先回 JSON：確認資料正確，再做 Blade 畫面
+        return view('books.show', [
+            'book' => $book,
+            'availableCount' => $availableCount,
+        ]);
 
     }
+
+
 }

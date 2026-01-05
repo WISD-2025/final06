@@ -79,7 +79,12 @@ Route::get('/__debug/db', function () {
 
 Route::get('/books', [BookController::class, 'index'])->name('books.index');
 
+// GET /books/{id}：書籍詳情（用 id 查詢，避免 route model binding 綁錯）
+Route::get('/books/{id}', [BookController::class, 'show'])
+    ->whereNumber('id')
+    ->name('books.show');
 
+    
 /*管理者帳號:admin@final06.com
 密碼:Admin12345!*/
 

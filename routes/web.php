@@ -5,6 +5,7 @@ use Laravel\Fortify\Features;
 use Livewire\Volt\Volt;
 use App\Http\Controllers\Staff\LoanController as StaffLoanController;
 use App\Http\Controllers\BookController;
+use App\Http\Controllers\Staff\BookController as StaffBookController;
 use Illuminate\Support\Facades\DB;
 
 Route::get('/', function () {
@@ -38,7 +39,7 @@ Route::middleware(['auth'])->group(function () {
 // ===== 館員/管理者專區 =====
 // 修正：移除這裡的 inline function，只保留 'auth'
 // 權限檢查交給 Controller 裡的 abort_unless 處理
-Route::middleware(['auth']) 
+Route::middleware(['auth', 'role:librarian']) 
     ->prefix('staff')
     ->name('staff.')
     ->group(function () {
@@ -58,6 +59,20 @@ Route::middleware(['auth'])
             ->name('loans.return.form');
         Route::post('/loans/return', [StaffLoanController::class, 'returnStore'])
             ->name('loans.return.store');
+        
+        // ===== 書籍管理（librarian）=====
+        Route::get('/books', [StaffBookController::class, 'index'])
+            ->name('books.index');
+        
+        // 新增書目（表單）
+        Route::get('/books/create', [StaffBookController::class, 'create'])
+            ->name('books.create');
+
+        // 新增書目（送出）
+        Route::post('/books', [StaffBookController::class, 'store'])
+            ->name('books.store');
+
+
     });
 
 // ===== 讀者：我的借閱 =====
@@ -74,10 +89,12 @@ Route::get('/books/{id}', [BookController::class, 'show'])
 
 
 // ===== 偵錯專用 =====
-Route::get('/__debug/db', function () {
+Route::middleware(['auth', 'role:librarian'])->get('/__debug/db', function () {
     $db = DB::selectOne('select database() as db');
     return response()->json([
         'database' => $db?->db,
         'users_count' => \App\Models\User::count(),
     ]);
 });
+
+

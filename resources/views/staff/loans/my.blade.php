@@ -18,11 +18,36 @@
                     @forelse ($loans as $loan)
                         <tr class="border-b">
                             <td class="p-2">{{ $loan->copy->barcode }}</td>
-                            <td class="p-2">{{ $loan->copy->title?->title ?? '（未知書名）' }}</td>
+                            {{-- 書名：可點進書籍詳情 /books/{id} --}}
+                            <td class="px-4 py-2">
+                                <a class="hover:underline"
+                                href="{{ route('books.show', $loan->copy->title->id) }}">
+                                    {{ $loan->copy->title->title }}
+                                </a>
+                            </td>
                             <td class="p-2">{{ $loan->loan_date }}</td>
                             <td class="p-2">{{ $loan->due_date }}</td>
-                            <td class="p-2">{{ $loan->return_date ?? '-' }}</td>
-                            <td class="p-2">{{ $loan->return_date ? '已歸還' : '借閱中' }}</td>
+                            <td class="px-4 py-2">
+                                {{ $loan->return_date ?? '-' }}
+                            </td>
+                            <td class="p-2">
+                                @php
+                                    // 逾期：借閱中 且 due_date 已經過了今天
+                                    $isOverdue = !$loan->return_date
+                                        && $loan->due_date
+                                        && \Illuminate\Support\Carbon::parse($loan->due_date)->isPast();
+                                @endphp
+
+                                @if($loan->return_date)
+                                    <span class="px-2 py-1 rounded bg-green-100 text-green-800 text-sm">已歸還</span>
+                                @else
+                                    <span class="px-2 py-1 rounded bg-yellow-100 text-yellow-800 text-sm">借閱中</span>
+
+                                    @if($isOverdue)
+                                        <span class="ml-2 px-2 py-1 rounded bg-red-100 text-red-800 text-sm">逾期</span>
+                                    @endif
+                                @endif
+                            </td>
                         </tr>
                     @empty
                         <tr>

@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
 use Livewire\Volt\Volt;
 use App\Http\Controllers\Staff\LoanController as StaffLoanController;
+use Illuminate\Support\Facades\DB;
+
 
 Route::get('/', function () {
     return view('welcome');
@@ -33,24 +35,47 @@ Route::middleware(['auth'])->group(function () {
 });
 
 
-// ===== 館員借出功能 =====
-Route::middleware(['auth'])->group(function () {
-    Route::get('/staff/loans/checkout', [StaffLoanController::class, 'create'])
-        ->name('staff.loans.create');
+// ===== 館員/管理者專區（librarian 才能進）=====
+Route::middleware(['auth', 'role:librarian'])
+    ->prefix('staff')
+    ->name('staff.')
+    ->group(function () {
 
-    Route::post('/staff/loans/checkout', [StaffLoanController::class, 'store'])
-        ->name('staff.loans.store');
+        // 館員查看全部借閱紀錄
+        Route::get('/loans', [StaffLoanController::class, 'index'])
+            ->name('loans.index');
+
+        // 借出
+        Route::get('/loans/checkout', [StaffLoanController::class, 'create'])
+            ->name('loans.create');
+        Route::post('/loans/checkout', [StaffLoanController::class, 'store'])
+            ->name('loans.store');
+
+        // 歸還
+        Route::get('/loans/return', [StaffLoanController::class, 'returnForm'])
+            ->name('loans.return.form');
+        Route::post('/loans/return', [StaffLoanController::class, 'returnStore'])
+            ->name('loans.return.store');
+    });
+
+// ===== 讀者：我的借閱（登入即可）=====
+Route::middleware(['auth'])->get('/my/loans', [StaffLoanController::class, 'myLoans'])
+    ->name('my.loans.index');
+
+
+// ===== 偵錯專用路由（開發時使用）=====
+Route::get('/__debug/db', function () {
+    $db = DB::selectOne('select database() as db');
+    return response()->json([
+        'database' => $db?->db,
+        'users_count' => \App\Models\User::count(),
+        'admin_exists' => \App\Models\User::where('email','admin@final06.com')->exists(),
+        'fortify_username' => config('fortify.username'),
+        'auth_user_model' => config('auth.providers.users.model'),
+    ]);
 });
 
-//===== 歸還功能 =====
-Route::get('/staff/loans/return', [StaffLoanController::class, 'returnForm'])
-    ->name('staff.loans.return.form');
+/*管理者帳號:admin@final06.com
+密碼:Admin12345!*/
 
-Route::post('/staff/loans/return', [StaffLoanController::class, 'returnStore'])
-    ->name('staff.loans.return.store');
-// ===== 館員查看借閱紀錄功能 =====
-Route::get('/staff/loans', [StaffLoanController::class, 'index'])
-    ->name('staff.loans.index');
 
-Route::get('/my/loans', [StaffLoanController::class, 'myLoans'])
-    ->name('my.loans.index');

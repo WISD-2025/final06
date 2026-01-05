@@ -18,13 +18,17 @@ class Loan extends Model
         'status',
     ];
 
-    // 哪一位讀者借的
+    protected $casts = [
+        'loan_date' => 'datetime',
+        'due_date' => 'datetime',
+        'return_date' => 'datetime',
+    ];
+
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    // 借的是哪一本館藏副本
     public function copy()
     {
         return $this->belongsTo(BookCopy::class, 'book_copy_id');

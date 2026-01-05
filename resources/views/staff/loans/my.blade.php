@@ -8,7 +8,7 @@
 
     <div class="card mb-4 mt-3">
         <div class="card-body">
-            <table class="table table-hover">
+            <table class="table table-hover align-middle">
                 <thead>
                     <tr>
                         <th>書名</th>
@@ -21,14 +21,24 @@
                 <tbody>
                     @forelse($loans as $loan)
                         <tr>
-                            <td>{{ $loan->copy->book->title ?? '未知' }}</td>
-                            <td>{{ $loan->loan_date }}</td>
-                            <td>{{ $loan->due_date }}</td>
-                            <td>{{ $loan->return_date ?? '-' }}</td>
+                            <td>
+                                {{-- ★★★ 修正點：嘗試多種路徑抓取書名，確保不顯示未知 ★★★ --}}
+                                <span class="fw-bold">
+                                    {{ $loan->copy->title->title ?? $loan->copy->book->title ?? '未知書名' }}
+                                </span>
+                                <br>
+                                <small class="text-muted">{{ $loan->copy->barcode ?? '' }}</small>
+                            </td>
+                            {{-- ★★★ 優化點：加上 format('Y-m-d') 讓日期更乾淨 ★★★ --}}
+                            <td>{{ $loan->loan_date->format('Y-m-d') }}</td>
+                            <td>{{ $loan->due_date->format('Y-m-d') }}</td>
+                            <td>
+                                {{ $loan->return_date ? $loan->return_date->format('Y-m-d') : '-' }}
+                            </td>
                             <td>
                                 @if($loan->return_date)
                                     <span class="badge bg-secondary">已歸還</span>
-                                @elseif(\Carbon\Carbon::parse($loan->due_date)->isPast())
+                                @elseif($loan->due_date->isPast())
                                     <span class="badge bg-danger">逾期</span>
                                 @else
                                     <span class="badge bg-primary">借閱中</span>
@@ -37,7 +47,9 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="text-center">您目前沒有借閱紀錄。</td>
+                            <td colspan="5" class="text-center py-4 text-muted">
+                                您目前沒有借閱紀錄。
+                            </td>
                         </tr>
                     @endforelse
                 </tbody>

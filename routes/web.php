@@ -5,6 +5,8 @@ use Laravel\Fortify\Features;
 use Livewire\Volt\Volt;
 use App\Http\Controllers\Staff\LoanController as StaffLoanController;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\BookController;
+
 
 
 Route::get('/', function () {
@@ -74,6 +76,9 @@ Route::get('/__debug/db', function () {
         'auth_user_model' => config('auth.providers.users.model'),
     ]);
 });
+
+Route::get('/books', [BookController::class, 'index'])->name('books.index');
+
 
 /*管理者帳號:admin@final06.com
 密碼:Admin12345!*/

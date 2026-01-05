@@ -4,10 +4,8 @@ use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
 use Livewire\Volt\Volt;
 use App\Http\Controllers\Staff\LoanController as StaffLoanController;
-use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\BookController;
-
-
+use Illuminate\Support\Facades\DB;
 
 Route::get('/', function () {
     return view('welcome');
@@ -37,55 +35,49 @@ Route::middleware(['auth'])->group(function () {
 });
 
 
-// ===== 館員/管理者專區（librarian 才能進）=====
-Route::middleware(['auth', 'role:librarian'])
+// ===== 館員/管理者專區 =====
+// 修正：移除這裡的 inline function，只保留 'auth'
+// 權限檢查交給 Controller 裡的 abort_unless 處理
+Route::middleware(['auth']) 
     ->prefix('staff')
     ->name('staff.')
     ->group(function () {
 
-        // 館員查看全部借閱紀錄
+        // 1. 館員查看全部借閱紀錄
         Route::get('/loans', [StaffLoanController::class, 'index'])
             ->name('loans.index');
 
-        // 借出
+        // 2. 借出
         Route::get('/loans/checkout', [StaffLoanController::class, 'create'])
             ->name('loans.create');
         Route::post('/loans/checkout', [StaffLoanController::class, 'store'])
             ->name('loans.store');
 
-        // 歸還
+        // 3. 歸還
         Route::get('/loans/return', [StaffLoanController::class, 'returnForm'])
             ->name('loans.return.form');
         Route::post('/loans/return', [StaffLoanController::class, 'returnStore'])
             ->name('loans.return.store');
     });
 
-// ===== 讀者：我的借閱（登入即可）=====
+// ===== 讀者：我的借閱 =====
 Route::middleware(['auth'])->get('/my/loans', [StaffLoanController::class, 'myLoans'])
     ->name('my.loans.index');
 
 
-// ===== 偵錯專用路由（開發時使用）=====
+// ===== 書籍查詢 =====
+Route::get('/books', [BookController::class, 'index'])->name('books.index');
+
+Route::get('/books/{id}', [BookController::class, 'show'])
+    ->whereNumber('id')
+    ->name('books.show');
+
+
+// ===== 偵錯專用 =====
 Route::get('/__debug/db', function () {
     $db = DB::selectOne('select database() as db');
     return response()->json([
         'database' => $db?->db,
         'users_count' => \App\Models\User::count(),
-        'admin_exists' => \App\Models\User::where('email','admin@final06.com')->exists(),
-        'fortify_username' => config('fortify.username'),
-        'auth_user_model' => config('auth.providers.users.model'),
     ]);
 });
-
-Route::get('/books', [BookController::class, 'index'])->name('books.index');
-
-// GET /books/{id}：書籍詳情（用 id 查詢，避免 route model binding 綁錯）
-Route::get('/books/{id}', [BookController::class, 'show'])
-    ->whereNumber('id')
-    ->name('books.show');
-
-    
-/*管理者帳號:admin@final06.com
-密碼:Admin12345!*/
-
-

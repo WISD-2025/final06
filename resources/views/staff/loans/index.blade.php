@@ -28,7 +28,7 @@
                         <tr>
                             <td>{{ $loan->user->email ?? '未知使用者' }}</td>
                             <td>{{ $loan->copy->barcode ?? '-' }}</td>
-                            <td>{{ $loan->copy->book->title ?? '未知書名' }}</td>
+                            <<td>{{ $loan->copy->title->title ?? '未知書名' }}</td>
                             <td>{{ $loan->loan_date }}</td>
                             {{-- 判斷是否逾期，逾期顯示紅色 --}}
                             <td class="{{ \Carbon\Carbon::parse($loan->due_date)->isPast() ? 'text-danger fw-bold' : '' }}">

@@ -64,13 +64,25 @@ Route::middleware(['auth', 'role:librarian'])
         Route::get('/books', [StaffBookController::class, 'index'])
             ->name('books.index');
         
-        // 新增書目（表單）
+        // 新增書目
         Route::get('/books/create', [StaffBookController::class, 'create'])
             ->name('books.create');
-
-        // 新增書目（送出）
         Route::post('/books', [StaffBookController::class, 'store'])
             ->name('books.store');
+
+        // --- 請加入以下三行 ---
+        // 編輯表單頁面
+        Route::get('/books/{id}/edit', [StaffBookController::class, 'edit'])
+            ->name('books.edit');
+        
+        // 更新動作 (PUT)
+        Route::put('/books/{id}', [StaffBookController::class, 'update'])
+            ->name('books.update');
+
+        // 刪除動作 (DELETE)
+        Route::delete('/books/{id}', [StaffBookController::class, 'destroy'])
+            ->name('books.destroy');
+        // ---------------------
 
 
     });

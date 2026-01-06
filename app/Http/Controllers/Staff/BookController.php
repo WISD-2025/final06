@@ -62,4 +62,51 @@ class BookController extends Controller
             ->with('success', '書目新增成功！');
     }
 
+    public function edit($id)
+    {
+        // 使用 BookTitle 模型
+        $book = BookTitle::findOrFail($id);
+        return view('staff.books.edit', compact('book'));
+    }
+
+    /**
+     * 更新書目
+     * PUT /staff/books/{id}
+     */
+    public function update(Request $request, $id)
+    {
+        $book = BookTitle::findOrFail($id);
+
+        $data = $request->validate([
+            'title' => ['required', 'string', 'max:255'],
+            'author' => ['nullable', 'string', 'max:255'],
+            // 更新 ISBN 時，要忽略當前這本書的 ID，以免報錯說重複
+            'isbn' => ['nullable', 'string', 'max:50', 'unique:book_titles,isbn,' . $id],
+            'published_year' => ['nullable', 'integer', 'min:0', 'max:3000'],
+        ]);
+
+        $book->update($data);
+
+        return redirect()
+            ->route('staff.books.index')
+            ->with('success', '書目資料更新成功！');
+    }
+
+    /**
+     * 刪除書目
+     * DELETE /staff/books/{id}
+     */
+    public function destroy($id)
+    {
+        $book = BookTitle::findOrFail($id);
+        
+        // (選擇性) 如果你要防止刪除還有庫存的書，可以在這裡加檢查
+        // if ($book->copies()->count() > 0) { ... }
+
+        $book->delete();
+
+        return redirect()
+            ->route('staff.books.index')
+            ->with('success', '書目已刪除！');
+    }
 }

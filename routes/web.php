@@ -80,11 +80,15 @@ Route::middleware(['auth'])
             Route::put('/books/{id}', [StaffBookController::class, 'update'])->name('books.update');
             Route::delete('/books/{id}', [StaffBookController::class, 'destroy'])->name('books.destroy');
 
-            // --- 庫存副本管理 ---
-            Route::post('/books/{book}/copies', [\App\Http\Controllers\Staff\BookCopyController::class, 'store'])
-                ->name('copies.store');
-            Route::delete('/copies/{id}', [\App\Http\Controllers\Staff\BookCopyController::class, 'destroy'])
-                ->name('copies.destroy');
+            // --- ★★★ 新增：書籍詳情與庫存管理 ★★★ ---
+            Route::get('/books/{id}', [StaffBookController::class, 'show'])
+                ->name('books.show'); // 顯示詳情頁
+
+            Route::post('/books/{id}/copies', [StaffBookController::class, 'addCopy'])
+                ->name('books.add_copy'); // 處理新增副本
+
+            // (選擇性) 刪除副本 - 如果你有 BookCopyController 可以留著，沒有的話建議先註解掉
+            // Route::delete('/copies/{id}', [\App\Http\Controllers\Staff\BookCopyController::class, 'destroy'])->name('copies.destroy');
         });
 
     });

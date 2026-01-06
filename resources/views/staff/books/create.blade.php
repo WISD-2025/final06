@@ -31,46 +31,39 @@
             <form method="POST" action="{{ route('staff.books.store') }}">
                 @csrf
 
-                {{-- 基本資料 --}}
+                {{-- 1. 書名 --}}
                 <div class="mb-3">
                     <label class="form-label fw-bold">書名 <span class="text-danger">*</span></label>
                     <input type="text" name="title" value="{{ old('title') }}" class="form-control" required>
                 </div>
 
+                {{-- 2. 作者 --}}
                 <div class="mb-3">
                     <label class="form-label fw-bold">作者</label>
                     <input type="text" name="author" value="{{ old('author') }}" class="form-control">
                 </div>
 
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label fw-bold">ISBN</label>
-                        <input type="text" name="isbn" value="{{ old('isbn') }}" class="form-control">
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label fw-bold">出版年</label>
-                        <input type="number" name="published_year" value="{{ old('published_year') }}" class="form-control" min="0" max="3000">
-                    </div>
+                {{-- 3. ISBN --}}
+                <div class="mb-3">
+                    <label class="form-label fw-bold">ISBN</label>
+                    <input type="text" name="isbn" value="{{ old('isbn') }}" class="form-control">
+                </div>
+
+                {{-- 4. 出版年 --}}
+                <div class="mb-3">
+                    <label class="form-label fw-bold">出版年</label>
+                    <input type="number" name="published_year" value="{{ old('published_year') }}" class="form-control" min="0" max="3000">
                 </div>
 
                 <hr class="my-4">
 
-                {{-- ★★★ 新增：初始副本設定 (起始條碼 + 數量) ★★★ --}}
+                {{-- ★★★ 5. 初始副本條碼 (原本缺了這一塊) ★★★ --}}
                 <div class="p-3 bg-light border rounded mb-3">
-                    <h6 class="fw-bold text-primary mb-3">
-                        <i class="fas fa-barcode me-1"></i> 初始庫存設定 (選填)
-                    </h6>
-                    <div class="row g-3">
-                        <div class="col-md-8">
-                            <label class="form-label fw-bold">起始條碼</label>
-                            <input type="text" name="start_barcode" value="{{ old('start_barcode') }}" class="form-control border-primary" placeholder="例如：LIB-2026-001">
-                            <div class="form-text text-muted">若輸入文字結尾是數字，系統將會自動遞增 (如 A-01, A-02...)</div>
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label fw-bold">新增數量</label>
-                            <input type="number" name="copy_quantity" value="{{ old('copy_quantity', 1) }}" class="form-control border-primary" min="1" max="50">
-                        </div>
-                    </div>
+                    <label class="form-label fw-bold text-primary">
+                        <i class="fas fa-barcode me-1"></i> 初始副本條碼 (選填)
+                    </label>
+                    <input type="text" name="barcode" value="{{ old('barcode') }}" class="form-control border-primary" placeholder="請輸入條碼，系統將自動建立一本「在架上」的庫存">
+                    <div class="form-text text-muted">若您手邊已有第一本書，請輸入條碼；若留空則只會建立書目資料。</div>
                 </div>
 
                 <div class="d-flex gap-2 mt-4">

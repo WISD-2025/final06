@@ -108,4 +108,36 @@ class BookController extends Controller
             ->route('staff.books.index')
             ->with('success', '書目已刪除！');
     }
+
+    public function show($id)
+    {
+        // 抓取書籍，並預先載入 copies (副本) 以避免 N+1 問題
+        $book = BookTitle::with('copies')->findOrFail($id);
+
+        return view('staff.books.show', compact('book'));
+    }
+
+    /**
+     * 新增副本 (接收 POST 請求)
+     */
+    public function addCopy(Request $request, $id)
+    {
+        $book = BookTitle::findOrFail($id);
+
+        // 驗證
+        $request->validate([
+            'barcode' => ['required', 'string', 'max:50', 'unique:book_copies,barcode'],
+        ]);
+
+        // 建立副本
+        \App\Models\BookCopy::create([
+            'book_title_id' => $book->id,
+            'barcode' => $request->barcode,
+            'status' => 'available', // 預設為可借
+        ]);
+
+        return redirect()
+            ->route('staff.books.show', $book->id)
+            ->with('success', '成功新增一本館藏副本！');
+    }
 }

@@ -60,8 +60,16 @@
                                         <span class="badge bg-secondary rounded-pill">0</span>
                                     @endif
                                 </td>
+
+
+                                
                                 <td class="text-center">
                                     <div class="btn-group btn-group-sm">
+                                        
+                                        <a href="{{ route('staff.books.show', $book->id) }}" class="btn btn-info text-white" title="管理庫存">
+                                            <i class="fas fa-list"></i> 庫存
+                                        </a>
+
                                         <a href="{{ route('staff.books.edit', $book->id) }}" class="btn btn-outline-secondary">編輯</a>
                                         
                                         <form action="{{ route('staff.books.destroy', $book->id) }}" method="POST" onsubmit="return confirm('確定要刪除這本書嗎？');">
@@ -71,7 +79,6 @@
                                         </form>
                                     </div>
                                 </td>
-                            </tr>
                         @empty
                             <tr>
                                 <td colspan="6" class="text-center text-muted py-4">

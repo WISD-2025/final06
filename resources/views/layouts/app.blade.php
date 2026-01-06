@@ -48,6 +48,7 @@
                         </a>
 
                         @auth
+                            {{-- 讀者專區 --}}
                             @if(auth()->user()->role === 'member')
                                 <div class="sb-sidenav-menu-heading">讀者中心</div>
                                 <a class="nav-link {{ request()->routeIs('my.loans') ? 'active' : '' }}" href="{{ url('/my/loans') }}">
@@ -56,35 +57,43 @@
                                 </a>
                             @endif
 
-                            @if(auth()->user()->role === 'librarian')
-    <div class="sb-sidenav-menu-heading">館務管理</div>
-    
-    {{-- 流通櫃台 (包含 借書 & 還書) --}}
-    <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseStaff" aria-expanded="false" aria-controls="collapseStaff">
-        <div class="sb-nav-link-icon"><i class="fas fa-id-card"></i></div>
-        流通櫃台
-        <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
-    </a>
-    {{-- 這裡加入了 routeIs('staff.loans.*')，只要是借還書相關頁面，選單就會自動展開 --}}
-    <div class="collapse {{ request()->routeIs('staff.loans.*') ? 'show' : '' }}" id="collapseStaff" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordion">
-        <nav class="sb-sidenav-menu-nested nav">
-            {{-- 1. 辦理借書 (注意 route 名稱改為 create) --}}
-            <a class="nav-link {{ request()->routeIs('staff.loans.create') ? 'active' : '' }}" href="{{ route('staff.loans.create') }}">
-                辦理借書
-            </a>
-            
-            {{-- 2. 辦理還書 (新增此連結) --}}
-            <a class="nav-link {{ request()->routeIs('staff.loans.return.form') ? 'active' : '' }}" href="{{ route('staff.loans.return.form') }}">
-                辦理還書
-            </a>
+                            {{-- 工作人員專區 (Admin 或 Librarian) --}}
+                            @if(auth()->user()->role === 'librarian' || auth()->user()->role === 'admin')
+                                <div class="sb-sidenav-menu-heading">館務管理</div>
+                                
+                                {{-- ★★★ Admin 專屬：書籍管理 ★★★ --}}
+                                @if(auth()->user()->role === 'admin')
+                                    <a class="nav-link {{ request()->routeIs('staff.books.*') ? 'active' : '' }}" href="{{ route('staff.books.index') }}">
+                                        <div class="sb-nav-link-icon"><i class="fas fa-book"></i></div>
+                                        書籍管理
+                                    </a>
+                                @endif
 
-            {{-- 3. 借閱紀錄總覽 --}}
-            <a class="nav-link {{ request()->routeIs('staff.loans.index') ? 'active' : '' }}" href="{{ route('staff.loans.index') }}">
-                借閱紀錄總覽
-            </a>
-        </nav>
-    </div>
-@endif
+                                {{-- ★★★ Librarian 專屬：流通櫃台 ★★★ --}}
+                                @if(auth()->user()->role === 'librarian')
+                                    <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseStaff" aria-expanded="false" aria-controls="collapseStaff">
+                                        <div class="sb-nav-link-icon"><i class="fas fa-id-card"></i></div>
+                                        流通櫃台
+                                        <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                                    </a>
+                                    
+                                    <div class="collapse {{ request()->routeIs('staff.loans.*') ? 'show' : '' }}" id="collapseStaff" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordion">
+                                        <nav class="sb-sidenav-menu-nested nav">
+                                            <a class="nav-link {{ request()->routeIs('staff.loans.create') ? 'active' : '' }}" href="{{ route('staff.loans.create') }}">
+                                                辦理借書
+                                            </a>
+                                            
+                                            <a class="nav-link {{ request()->routeIs('staff.loans.return.form') ? 'active' : '' }}" href="{{ route('staff.loans.return.form') }}">
+                                                辦理還書
+                                            </a>
+
+                                            <a class="nav-link {{ request()->routeIs('staff.loans.index') ? 'active' : '' }}" href="{{ route('staff.loans.index') }}">
+                                                借閱紀錄總覽
+                                            </a>
+                                        </nav>
+                                    </div>
+                                @endif
+                            @endif
                         @endauth
                     </div>
                 </div>

@@ -36,63 +36,66 @@ Route::middleware(['auth'])->group(function () {
 });
 
 
-// ===== 館員/管理者專區 =====
-// 修正：移除這裡的 inline function，只保留 'auth'
-// 權限檢查交給 Controller 裡的 abort_unless 處理
-Route::middleware(['auth', 'role:librarian']) 
+// ===== 後台管理專區 (Staff Area) =====
+Route::middleware(['auth'])
     ->prefix('staff')
     ->name('staff.')
     ->group(function () {
 
-        // 1. 館員查看全部借閱紀錄
-        Route::get('/loans', [StaffLoanController::class, 'index'])
-            ->name('loans.index');
+        // ==========================================
+        // 1. 流通櫃台 (借還書)
+        // 權限僅限 館員 (Librarian)
+        // ==========================================
+        Route::middleware(['role:librarian'])->group(function() {
+            
+            // 紀錄總覽
+            Route::get('/loans', [StaffLoanController::class, 'index'])
+                ->name('loans.index');
 
-        // 2. 借出
-        Route::get('/loans/checkout', [StaffLoanController::class, 'create'])
-            ->name('loans.create');
-        Route::post('/loans/checkout', [StaffLoanController::class, 'store'])
-            ->name('loans.store');
+            // 借書
+            Route::get('/loans/checkout', [StaffLoanController::class, 'create'])
+                ->name('loans.create');
+            Route::post('/loans/checkout', [StaffLoanController::class, 'store'])
+                ->name('loans.store');
 
-        // 3. 歸還
-        Route::get('/loans/return', [StaffLoanController::class, 'returnForm'])
-            ->name('loans.return.form');
-        Route::post('/loans/return', [StaffLoanController::class, 'returnStore'])
-            ->name('loans.return.store');
-        
-        // ===== 書籍管理（librarian）=====
-        Route::get('/books', [StaffBookController::class, 'index'])
-            ->name('books.index');
-        
-        // 新增書目
-        Route::get('/books/create', [StaffBookController::class, 'create'])
-            ->name('books.create');
-        Route::post('/books', [StaffBookController::class, 'store'])
-            ->name('books.store');
+            // 歸還
+            Route::get('/loans/return', [StaffLoanController::class, 'returnForm'])
+                ->name('loans.return.form');
+            Route::post('/loans/return', [StaffLoanController::class, 'returnStore'])
+                ->name('loans.return.store');
+        });
 
-        // --- 請加入以下三行 ---
-        // 編輯表單頁面
-        Route::get('/books/{id}/edit', [StaffBookController::class, 'edit'])
-            ->name('books.edit');
-        
-        // 更新動作 (PUT)
-        Route::put('/books/{id}', [StaffBookController::class, 'update'])
-            ->name('books.update');
 
-        // 刪除動作 (DELETE)
-        Route::delete('/books/{id}', [StaffBookController::class, 'destroy'])
-            ->name('books.destroy');
-        // ---------------------
+        // ==========================================
+        // 2. 書籍與庫存管理
+        // 權限：僅限 管理員 (Admin)
+        // ==========================================
+        Route::middleware(['role:admin'])->group(function () {
+            
+            // --- 書籍 CRUD ---
+            Route::get('/books', [StaffBookController::class, 'index'])->name('books.index');
+            Route::get('/books/create', [StaffBookController::class, 'create'])->name('books.create');
+            Route::post('/books', [StaffBookController::class, 'store'])->name('books.store');
+            Route::get('/books/{id}/edit', [StaffBookController::class, 'edit'])->name('books.edit');
+            Route::put('/books/{id}', [StaffBookController::class, 'update'])->name('books.update');
+            Route::delete('/books/{id}', [StaffBookController::class, 'destroy'])->name('books.destroy');
 
+            // --- 庫存副本管理 ---
+            Route::post('/books/{book}/copies', [\App\Http\Controllers\Staff\BookCopyController::class, 'store'])
+                ->name('copies.store');
+            Route::delete('/copies/{id}', [\App\Http\Controllers\Staff\BookCopyController::class, 'destroy'])
+                ->name('copies.destroy');
+        });
 
     });
+
 
 // ===== 讀者：我的借閱 =====
 Route::middleware(['auth'])->get('/my/loans', [StaffLoanController::class, 'myLoans'])
     ->name('my.loans.index');
 
 
-// ===== 書籍查詢 =====
+// ===== 書籍查詢 (前台) =====
 Route::get('/books', [BookController::class, 'index'])->name('books.index');
 
 Route::get('/books/{id}', [BookController::class, 'show'])
@@ -101,12 +104,10 @@ Route::get('/books/{id}', [BookController::class, 'show'])
 
 
 // ===== 偵錯專用 =====
-Route::middleware(['auth', 'role:librarian'])->get('/__debug/db', function () {
+Route::middleware(['auth', 'role:admin'])->get('/__debug/db', function () {
     $db = DB::selectOne('select database() as db');
     return response()->json([
         'database' => $db?->db,
         'users_count' => \App\Models\User::count(),
     ]);
 });
-
-
